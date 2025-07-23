@@ -8,7 +8,7 @@ module.exports = {
   apps: [
     {
       name: "production", //需与package.json里--only 后缀名相同
-      script: "./src/app.js",
+      script: "./dist/app.js",
       args: "one two",
       instances: 2,
       cron_restart: "0 03 * * *",
@@ -23,14 +23,14 @@ module.exports = {
         "log",
       ],
       max_memory_restart: "300M",
-      restart_delay: "9090",
+      restart_delay: "3000",
       env: {
         NODE_ENV: ENV.production, //process.env.NODE_ENV值
       },
     },
     {
       name: "test", //需与package.json里--only 后缀名相同
-      script: "./src/app.js",
+      script: "./dist/app.js",
       args: "one two",
       instances: 1,
       cron_restart: "0 03 * * *",

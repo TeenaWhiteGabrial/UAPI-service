@@ -1,21 +1,22 @@
 {
-  "name": "server",
+  "name": "koa-typescript-template",
   "version": "1.0.0",
   "main": "src/app.ts",
-  "author": "wujunjie",
+  "author": "Template Author",
   "license": "MIT",
+  "description": "A Koa TypeScript project template with MongoDB connection",
   "scripts": {
     "dev": "nodemon src/app.ts",
     "build": "rimraf dist && tsup src/app.ts --dts --format cjs,esm",
     "start": "node dist/app.js",
     "test": "pm2 start dist/app.js --only test",
-    "prod": "pm2 start dist/app.js --only production --name naive-admin-service",
+    "prod": "pm2 start dist/app.js --only production --name koa-template-service",
     "stop": "pm2 stop dist/app.js",
     "delete": "pm2 delete dist/app.js",
     "list": "pm2 list",
     "tsc": "tsc && npm run copy-package && npm run copy-assets",
     "copy-package": "cp package.json dist/",
-    "copy-assets": "cp src/assets/apiclient_key.pem src/assets/apiclient_cert.pem dist/src/assets/"
+    "copy-assets": "cp src/assets/* dist/src/assets/ 2>/dev/null || true"
   },
   "dependencies": {
     "@types/koa-cors": "^0.0.6",

@@ -5,7 +5,7 @@ import koaCors from "koa-cors";
 import { getIpAddress } from "./utils/util";
 import { loggerMiddleware } from "./log/log";
 import { FIXED_KEY } from "./config/constant";
-import { routers } from "./router";
+import router from "./router";
 import { errorHandler, responseHandler } from "./middleware/response";
 
 const app = new Koa();
@@ -21,10 +21,8 @@ app.use(errorHandler);
 // koaBody,处理请求的中间件
 app.use(koaBody({ multipart: true }));
 
-// 注册所有路由
-routers.forEach(router => {
-  app.use(router.routes()).use(router.allowedMethods());
-});
+// 注册路由
+app.use(router.routes()).use(router.allowedMethods());
 
 // 请求response处理
 app.use(responseHandler);

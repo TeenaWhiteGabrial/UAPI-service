@@ -6,56 +6,56 @@ export const ENV = {
   production: "production",
 };
 
-// mongoDB配置
+// mongoDB配置 - 请根据实际需要修改
 export const DATABASE = {
   // 本地环境
   development: {
-    dbName: "StarPeaceCompany",
-    user: "topaz",
-    password: "ipcMasterTopazzz",
-    host: "39.105.212.130",
+    dbName: "your_database_name",
+    user: "your_username",
+    password: "your_password",
+    host: "localhost",
     port: 27017,
   },
 
-  // 阿里云环境
+  // 生产环境
   production: {
-    dbName: "StarPeaceCompany",
-    user: "topaz",
-    password: "ipcMasterTopazzz",
-    host: "39.105.212.130",
+    dbName: "your_database_name",
+    user: "your_username",
+    password: "your_password",
+    host: "your_production_host",
     port: 27017,
   },
 };
 
 // jsonwebtoken-jwt配置
 export const JWT = {
-  secret: "x", //密钥
+  secret: "your_jwt_secret_key", //密钥 - 请修改为安全的密钥
   expires: 60 * 60 * 24 * 30, // 30天
 };
 
-// 平台Map
+// 平台Map - 可根据需要修改
 export const PLATFORM = {
-  wxMini: "微信小程序",
-  wxH5: "微信H5",
-  webH5: "webH5",
-  dyMini: "抖音小程序",
-  ksMini: "快手小程序",
-  qqMini: "QQ小程序",
+  web: "Web应用",
+  mobile: "移动应用",
+  api: "API服务",
 };
-
 
 // 全局参数
 export const FIXED_KEY = {
-  port: 9090,
+  port: 3000, // 默认端口，可根据需要修改
 };
 
-// 七牛上传参数
-export const QINIU = {
-  accessKey: 'ONiGLrLxZ2zTRQVDECDAy57fMz4cLGon93hrp1ca',
-  secretKey: 'mOIIU8JaAeTp-JWnacVhQTEg9o8BAySmKlAuBLO4',
-  bucketName: 'topazzz',
-  uploadUrl: 'http://qiniu.tenmagabrielwhite.cn', // 空间地址
-  expires: 7200, // 凭证有效期，单位是秒
+// 文件上传配置 - 可根据需要修改或删除
+export const UPLOAD = {
+  maxFileSize: 10 * 1024 * 1024, // 10MB
+  allowedTypes: ['image/jpeg', 'image/png', 'image/gif'],
+  uploadPath: './uploads',
 }
 
-// 日志参数
+// 日志配置
+export const LOG = {
+  level: 'info',
+  filename: './logs/app.log',
+  maxSize: 10 * 1024 * 1024, // 10MB
+  maxFiles: 5,
+}
