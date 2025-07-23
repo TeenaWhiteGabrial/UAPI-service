@@ -1,6 +1,6 @@
-# Koa TypeScript 项目模板
+# API 管理系统
 
-这是一个基于 Koa 和 TypeScript 的 Node.js 项目模板，集成了 MongoDB 数据库连接。
+这是一个基于 Koa 和 TypeScript 的 API 管理系统，支持项目和接口的完整 CRUD 操作。
 
 ## 功能特性
 
@@ -11,6 +11,10 @@
 - 🛡️ 错误处理中间件
 - 📦 PM2 进程管理
 - 🔄 热重载开发环境
+- 📋 项目管理功能
+- 🔗 API 接口管理功能
+- 🗑️ 软删除功能
+- 🔒 请求方法限制（仅支持 GET 和 POST）
 
 ## 快速开始
 
@@ -69,15 +73,201 @@ src/
 └── app.ts           # 应用入口
 ```
 
+## 数据库结构
+
+### projects 集合
+```json
+{
+  "_id": ObjectId("6880f4c19738000019007346"),
+  "id": "p01",
+  "name": "四图一清单",
+  "isDeleted": false,
+  "createdAt": "2024-01-01T00:00:00.000Z",
+  "updatedAt": "2024-01-01T00:00:00.000Z"
+}
+```
+
+### apis 集合
+```json
+{
+  "_id": ObjectId("687e165e9738000019007343"),
+  "id": "001",
+  "projectId": "p01",
+  "name": "企业分页列表",
+  "description": "获取企业分页列表",
+  "method": "POST",
+  "url": "/manage/appeal/companyOriginal/page",
+  "param": "{\"pageNo\":1,\"pageSize\":10}",
+  "response": "{\"code\":200,\"msg\":\"ok\",\"data\":{}}",
+  "isDeleted": false,
+  "createdAt": "2024-01-01T00:00:00.000Z",
+  "updatedAt": "2024-01-01T00:00:00.000Z"
+}
+```
+
 ## API 端点
 
-- `GET /` - 欢迎页面
-- `GET /health` - 健康检查
+### 项目管理
+- `GET /projects` - 获取项目列表（不包括已删除的）
+- `GET /projects/:id` - 获取指定项目
+- `POST /projects` - 创建项目
+- `POST /projects/:id/update` - 更新项目
+- `POST /projects/:id/delete` - 软删除项目
+
+### API 接口管理
+- `GET /apis` - 获取所有接口列表（不包括已删除的）
+- `GET /apis/:id` - 获取指定接口详情
+- `POST /apis` - 创建接口
+- `POST /apis/:id/update` - 更新接口
+- `POST /apis/:id/delete` - 软删除接口
+- `GET /projects/:projectId/apis` - 获取项目下的所有接口
+
+### 用户管理
 - `GET /users` - 获取用户列表
 - `GET /users/:id` - 获取指定用户
 - `POST /users` - 创建用户
-- `PUT /users/:id` - 更新用户
-- `DELETE /users/:id` - 删除用户
+- `POST /users/:id/update` - 更新用户
+- `POST /users/:id/delete` - 删除用户
+
+### 日志管理
+- `GET /logs/error` - 获取错误日志
+- `GET /logs/access` - 获取访问日志
+- `GET /logs/all` - 获取所有日志
+- `GET /logs/search?keyword=xxx&type=error` - 搜索日志
+- `GET /logs/info` - 获取日志文件信息
+
+### 系统
+- `GET /` - 欢迎页面
+- `GET /health` - 健康检查
+
+## 请求示例
+
+### 创建项目
+```bash
+POST /projects
+Content-Type: application/json
+
+{
+  "id": "p01",
+  "name": "四图一清单"
+}
+```
+
+### 更新项目
+```bash
+POST /projects/p01/update
+Content-Type: application/json
+
+{
+  "name": "四图一清单-更新版"
+}
+```
+
+### 删除项目
+```bash
+POST /projects/p01/delete
+Content-Type: application/json
+
+{}
+```
+
+### 创建接口
+```bash
+POST /apis
+Content-Type: application/json
+
+{
+  "id": "001",
+  "projectId": "p01",
+  "name": "企业分页列表",
+  "description": "获取企业分页列表",
+  "method": "POST",
+  "url": "/manage/appeal/companyOriginal/page",
+  "param": "{\"pageNo\":1,\"pageSize\":10}",
+  "response": "{\"code\":200,\"msg\":\"ok\",\"data\":{}}"
+}
+```
+
+### 更新接口
+```bash
+POST /apis/001/update
+Content-Type: application/json
+
+{
+  "name": "企业分页列表-更新版",
+  "description": "获取企业分页列表（更新版）",
+  "method": "GET",
+  "url": "/manage/appeal/companyOriginal/page",
+  "param": "{\"pageNo\":1,\"pageSize\":20}",
+  "response": "{\"code\":200,\"msg\":\"ok\",\"data\":{}}"
+}
+```
+
+### 删除接口
+```bash
+POST /apis/001/delete
+Content-Type: application/json
+
+{}
+```
+
+### 查看日志
+```bash
+# 查看最新的50行错误日志
+GET /logs/error?lines=50
+
+# 查看包含"获取接口列表失败"的日志
+GET /logs/search?keyword=获取接口列表失败&type=error
+
+# 查看日志文件信息
+GET /logs/info
+```
+
+## 日志系统
+
+### 日志文件
+- `logs/error.log` - 错误日志
+- `logs/access.log` - 访问日志
+- `logs/all-the-logs.log` - 所有日志
+
+### 日志级别
+- `info` - 信息日志
+- `warn` - 警告日志
+- `error` - 错误日志
+
+### 日志内容
+- 请求ID追踪
+- 请求和响应详情
+- 数据库操作日志
+- 业务逻辑日志
+- 错误堆栈信息
+
+### 日志配置
+```typescript
+export const LOG = {
+  level: 'info',           // 日志级别
+  maxSize: 10 * 1024 * 1024, // 单个日志文件最大大小 (10MB)
+  maxFiles: 5,             // 保留的日志文件数量
+}
+```
+
+## 特殊说明
+
+### 软删除功能
+- 删除操作使用软删除，数据不会真正从数据库中删除
+- 删除的数据会设置 `isDeleted: true` 标记
+- 查询接口默认不返回已删除的数据
+- 已删除的数据仍然占用ID，避免ID重复
+
+### 请求方法限制
+- API接口的 `method` 字段只支持 `GET` 和 `POST`
+- 创建或更新接口时会验证请求方法
+- 不支持其他HTTP方法（PUT、DELETE、PATCH等）
+
+### HTTP方法使用
+- 所有查询操作使用 `GET` 方法
+- 所有新增、修改、删除操作都使用 `POST` 方法
+- 不使用 `PUT`、`DELETE` 等HTTP方法
 
 ## 环境变量
 

@@ -1,0 +1,62 @@
+---
+description:
+globs:
+alwaysApply: false
+---
+# Koa TypeScript 项目模板结构指南
+
+这是一个基于Koa和TypeScript的Node.js项目模板，采用MVC架构模式。
+
+## 核心文件
+
+- 应用入口：[src/app.ts](mdc:src/app.ts) - 主应用文件，配置中间件和路由
+- 项目配置：[package.json](mdc:package.json) - 项目依赖和脚本配置
+- 数据库配置：[src/config/constant.ts](mdc:src/config/constant.ts) - 数据库连接和全局配置
+
+## 目录结构
+
+### 配置层 (Config)
+- [src/config/](mdc:src/config/) - 配置文件目录
+  - [constant.ts](mdc:src/config/constant.ts) - 数据库、JWT、上传等配置
+  - [pm2.config.ts](mdc:src/config/pm2.config.ts) - PM2进程管理配置
+
+### 模型层 (Models)
+- [src/models/](mdc:src/models/) - 数据模型定义
+  - [user.ts](mdc:src/models/user.ts) - 用户模型，包含接口定义和类方法
+
+### 服务层 (Services)
+- [src/services/](mdc:src/services/) - 业务逻辑层
+  - [user.ts](mdc:src/services/user.ts) - 用户相关业务逻辑，处理数据库操作
+
+### 控制器层 (Controllers)
+- [src/controllers/](mdc:src/controllers/) - 请求处理层
+  - [user.ts](mdc:src/controllers/user.ts) - 用户相关API控制器
+
+### 路由层 (Router)
+- [src/router/](mdc:src/router/) - 路由定义
+  - [index.ts](mdc:src/router/index.ts) - 主路由文件，定义所有API端点
+
+### 中间件 (Middleware)
+- [src/middleware/](mdc:src/middleware/) - 中间件
+  - [response.ts](mdc:src/middleware/response.ts) - 响应处理和错误处理中间件
+
+### 工具层 (Utils)
+- [src/utils/](mdc:src/utils/) - 工具函数
+  - [pool.ts](mdc:src/utils/pool.ts) - MongoDB连接池
+  - [util.ts](mdc:src/utils/util.ts) - 通用工具函数
+
+### 日志 (Log)
+- [src/log/](mdc:src/log/) - 日志配置
+  - 日志中间件和配置
+
+## 开发流程
+
+1. 在 [models/](mdc:src/models/) 中定义数据模型
+2. 在 [services/](mdc:src/services/) 中实现业务逻辑
+3. 在 [controllers/](mdc:src/controllers/) 中处理HTTP请求
+4. 在 [router/](mdc:src/router/) 中注册路由
+5. 在 [config/](mdc:src/config/) 中添加配置项
+
+## 数据库连接
+
+MongoDB连接通过 [src/utils/pool.ts](mdc:src/utils/pool.ts) 管理，配置在 [src/config/constant.ts](mdc:src/config/constant.ts) 中定义。

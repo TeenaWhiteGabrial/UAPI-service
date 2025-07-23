@@ -1,0 +1,83 @@
+---
+description:
+globs:
+alwaysApply: false
+---
+# 编码标准和最佳实践
+
+## TypeScript 规范
+
+### 类型定义
+- 所有接口以 `I` 开头，如 `IUser`
+- 使用 `Partial<T>` 表示可选属性
+- 优先使用接口而非类型别名
+- 导出类型定义到 [src/type/](mdc:src/type/) 目录
+
+### 类和方法
+- 控制器方法使用 `static async` 声明
+- 服务类使用实例方法，通过 `export default new ServiceClass()` 导出
+- 模型类包含 `toDocument()` 和 `fromDocument()` 方法
+
+### 错误处理
+- 使用 try-catch 包装异步操作
+- 统一错误响应格式：`{ code: number, message: string, error?: string }`
+- 在 [src/middleware/response.ts](mdc:src/middleware/response.ts) 中处理全局错误
+
+## 数据库操作
+
+### MongoDB 操作
+- 使用 [src/utils/pool.ts](mdc:src/utils/pool.ts) 中的连接池
+- 集合名称使用复数形式，如 `users`
+- 查询操作使用 `ObjectId` 处理ID字段
+- 更新操作自动添加 `updatedAt` 时间戳
+
+### 数据模型
+- 模型定义在 [src/models/](mdc:src/models/) 目录
+- 包含 `_id`, `createdAt`, `updatedAt` 标准字段
+- 实现 `toDocument()` 方法用于数据库存储
+- 实现 `fromDocument()` 静态方法用于数据恢复
+
+## API 设计
+
+### 路由规范
+- RESTful API 设计
+- 使用 HTTP 状态码表示操作结果
+- 统一响应格式：`{ code: number, message: string, data?: any }`
+- 路由定义在 [src/router/index.ts](mdc:src/router/index.ts)
+
+### 控制器规范
+- 控制器文件放在 [src/controllers/](mdc:src/controllers/) 目录
+- 方法名使用动词+名词格式，如 `getUsers`, `createUser`
+- 参数验证在控制器层进行
+- 业务逻辑委托给服务层处理
+
+## 配置管理
+
+### 环境配置
+- 配置项定义在 [src/config/constant.ts](mdc:src/config/constant.ts)
+- 支持 development 和 production 环境
+- 敏感信息使用环境变量
+- 数据库配置包含连接池设置
+
+### 中间件顺序
+在 [src/app.ts](mdc:src/app.ts) 中按以下顺序注册中间件：
+1. 跨域处理 (koaCors)
+2. 日志中间件
+3. 错误处理
+4. 请求体解析 (koaBody)
+5. 路由处理
+6. 响应处理
+
+## 文件命名
+
+### 目录结构
+- 使用小写字母和连字符命名目录
+- 文件名使用小写字母和下划线
+- 类型定义文件使用 `.ts` 扩展名
+- 配置文件使用 `.config.ts` 后缀
+
+### 导入规范
+- 使用相对路径导入
+- 优先导入第三方库
+- 然后导入内部模块
+- 最后导入类型定义

@@ -1,0 +1,199 @@
+---
+description: 
+globs: 
+alwaysApply: false
+---
+# 开发工作流程指南
+
+## 新功能开发流程
+
+### 1. 创建数据模型
+在 [src/models/](mdc:src/models) 目录下创建新的模型文件：
+
+```typescript
+// src/models/example.ts
+import { ObjectId } from 'mongodb';
+
+export interface IExample {
+  _id?: ObjectId;
+  name: string;
+  description?: string;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export class Example implements IExample {
+  // 实现模型类
+}
+```
+
+### 2. 创建服务层
+在 [src/services/](mdc:src/services) 目录下创建服务文件：
+
+```typescript
+// src/services/example.ts
+import { Example } from '../models/example';
+import db from '../utils/pool';
+
+export class ExampleService {
+  private collection = db.collection('examples');
+  
+  // 实现业务逻辑方法
+}
+
+export default new ExampleService();
+```
+
+### 3. 创建控制器
+在 [src/controllers/](mdc:src/controllers) 目录下创建控制器文件：
+
+```typescript
+// src/controllers/example.ts
+import { Context } from 'koa';
+import { ExampleService } from '../services/example';
+
+export class ExampleController {
+  static async getExamples(ctx: Context) {
+    // 实现控制器方法
+  }
+}
+```
+
+### 4. 注册路由
+在 [src/router/index.ts](mdc:src/router/index.ts) 中添加路由：
+
+```typescript
+import { ExampleController } from '../controllers/example';
+
+// 添加路由
+router.get('/examples', ExampleController.getExamples);
+```
+
+## 数据库操作模式
+
+### 查询操作
+```typescript
+// 在服务层实现
+async getAll() {
+  return await this.collection.find({}).toArray();
+}
+
+async getById(id: string) {
+  return await this.collection.findOne({ _id: new ObjectId(id) });
+}
+```
+
+### 创建操作
+```typescript
+async create(data: Partial<Model>) {
+  const model = new ModelClass(data);
+  const result = await this.collection.insertOne(model.toDocument());
+  return result.insertedId;
+}
+```
+
+### 更新操作
+```typescript
+async update(id: string, data: Partial<Model>) {
+  const result = await this.collection.updateOne(
+    { _id: new ObjectId(id) },
+    { $set: { ...data, updatedAt: new Date() } }
+  );
+  return result.matchedCount > 0;
+}
+```
+
+### 删除操作
+```typescript
+async delete(id: string) {
+  const result = await this.collection.deleteOne({ _id: new ObjectId(id) });
+  return result.deletedCount > 0;
+}
+```
+
+## 错误处理模式
+
+### 控制器层错误处理
+```typescript
+static async methodName(ctx: Context) {
+  try {
+    // 业务逻辑
+    ctx.body = {
+      code: 200,
+      message: '操作成功',
+      data: result
+    };
+  } catch (error: any) {
+    ctx.body = {
+      code: 500,
+      message: '操作失败',
+      error: error.message
+    };
+  }
+}
+```
+
+### 服务层错误处理
+```typescript
+async methodName() {
+  try {
+    // 数据库操作
+    return result;
+  } catch (error) {
+    throw new Error('操作失败的具体描述');
+  }
+}
+```
+
+## 配置管理
+
+### 添加新配置
+在 [src/config/constant.ts](mdc:src/config/constant.ts) 中添加配置项：
+
+```typescript
+export const NEW_CONFIG = {
+  key: 'value',
+  // 配置项
+};
+```
+
+### 环境变量使用
+```typescript
+// 在配置文件中使用环境变量
+export const DATABASE = {
+  development: {
+    host: process.env.DB_HOST || 'localhost',
+    // 其他配置
+  }
+};
+```
+
+## 测试和调试
+
+### 开发模式启动
+```bash
+npm run dev
+```
+
+### 构建和部署
+```bash
+npm run build
+npm start
+```
+
+### PM2 管理
+```bash
+npm run prod    # 生产模式启动
+npm run stop    # 停止服务
+npm run list    # 查看进程
+```
+
+## 代码审查要点
+
+1. **类型安全** - 确保所有函数都有正确的类型定义
+2. **错误处理** - 检查是否包含适当的错误处理
+3. **数据库操作** - 验证MongoDB操作的正确性
+4. **响应格式** - 确保API响应格式统一
+5. **配置管理** - 检查配置项是否合理
+6. **代码复用** - 避免重复代码，提取公共方法
+

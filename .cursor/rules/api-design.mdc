@@ -1,0 +1,247 @@
+---
+description: 
+globs: 
+alwaysApply: false
+---
+# API 设计规范
+
+## RESTful API 设计原则
+
+### 资源命名
+- 使用复数名词表示资源集合：`/users`, `/products`
+- 使用单数名词表示单个资源：`/users/:id`
+- 使用动词+名词表示操作：`/users/:id/activate`
+
+### HTTP 方法使用
+- `GET` - 获取资源（查询）
+- `POST` - 操作资源
+
+## 响应格式规范
+
+### 成功响应
+```typescript
+{
+  code: 200,
+  message: "操作成功",
+  data: {
+    // 响应数据
+  }
+}
+```
+
+### 错误响应
+```typescript
+{
+  code: 400 | 401 | 403 | 404 | 500,
+  message: "错误描述",
+  error?: "详细错误信息"
+}
+```
+
+### 分页响应
+```typescript
+{
+  code: 200,
+  message: "获取成功",
+  data: {
+    list: [],
+    total: 100,
+    pageNo: 1,
+    pageSize: 10
+  }
+}
+```
+
+## 状态码使用
+
+### 2xx 成功
+- `200` - 请求成功
+- `201` - 资源创建成功
+
+### 4xx 客户端错误
+- `400` - 请求参数错误
+- `401` - 未授权
+- `403` - 禁止访问
+- `404` - 资源不存在
+- `422` - 请求格式正确但语义错误
+
+### 5xx 服务器错误
+- `500` - 服务器内部错误
+- `502` - 网关错误
+- `503` - 服务不可用
+
+## 路由设计示例
+
+### 用户管理 API
+```typescript
+// 在 [src/router/index.ts](mdc:src/router/index.ts) 中定义
+router.get('/users', UserController.getUsers);           // 获取用户列表
+router.get('/users/:id', UserController.getUserById);    // 获取单个用户
+router.post('/users', UserController.createUser);        // 创建用户
+router.put('/users/:id', UserController.updateUser);     // 更新用户
+router.delete('/users/:id', UserController.deleteUser);  // 删除用户
+```
+
+### 查询参数规范
+```typescript
+// 分页查询
+GET /users?pageNo=1&pageSize=10
+
+// 条件查询
+GET /users?status=active&role=admin
+
+// 排序查询
+GET /users?sortBy=createdAt&order=desc
+
+// 搜索查询
+GET /users?search=keyword
+```
+
+## 控制器实现模式
+
+### 列表查询控制器
+```typescript
+static async getUsers(ctx: Context) {
+  try {
+    const { pageNo = 1, pageSize = 10, ...filters } = ctx.query;
+    const result = await UserService.getUsers(filters, pageNo, pageSize);
+    
+    ctx.body = {
+      code: 200,
+      message: '获取用户列表成功',
+      data: result
+    };
+  } catch (error: any) {
+    ctx.body = {
+      code: 500,
+      message: '获取用户列表失败',
+      error: error.message
+    };
+  }
+}
+```
+
+### 创建资源控制器
+```typescript
+static async createUser(ctx: Context) {
+  try {
+    const userData = ctx.request.body;
+    
+    // 参数验证
+    if (!userData.username || !userData.email) {
+      ctx.body = {
+        code: 400,
+        message: '用户名和邮箱不能为空'
+      };
+      return;
+    }
+    
+    const userId = await UserService.createUser(userData);
+    
+    ctx.body = {
+      code: 201,
+      message: '创建用户成功',
+      data: { id: userId }
+    };
+  } catch (error: any) {
+    ctx.body = {
+      code: 500,
+      message: '创建用户失败',
+      error: error.message
+    };
+  }
+}
+```
+
+## 中间件使用
+
+### 认证中间件
+```typescript
+// 在路由中使用
+router.get('/users', authMiddleware, UserController.getUsers);
+```
+
+### 参数验证中间件
+```typescript
+// 验证请求参数
+const validateUserData = async (ctx: Context, next: Next) => {
+  const { username, email } = ctx.request.body;
+  if (!username || !email) {
+    ctx.body = {
+      code: 400,
+      message: '参数不完整'
+    };
+    return;
+  }
+  await next();
+};
+
+router.post('/users', validateUserData, UserController.createUser);
+```
+
+## 错误处理
+
+### 全局错误处理
+在 [src/middleware/response.ts](mdc:src/middleware/response.ts) 中处理全局错误：
+
+```typescript
+export const errorHandler = (ctx: Koa.Context, next: Koa.Next) => {
+  return next().catch((err: any) => {
+    ctx.body = {
+      code: err.code || 500,
+      message: err.message || '服务器内部错误',
+      error: process.env.NODE_ENV === 'development' ? err.stack : undefined
+    };
+    ctx.status = 200; // 确保返回状态码为200
+  });
+};
+```
+
+### 业务错误处理
+```typescript
+// 在服务层抛出业务错误
+if (!user) {
+  throw {
+    code: 404,
+    message: '用户不存在'
+  };
+}
+```
+
+## API 文档
+
+### 使用 JSDoc 注释
+```typescript
+/**
+ * 获取用户列表
+ * @param {Context} ctx - Koa上下文
+ * @returns {Promise<void>}
+ */
+static async getUsers(ctx: Context) {
+  // 实现代码
+}
+```
+
+### 响应示例
+在控制器中添加响应示例注释：
+
+```typescript
+/**
+ * 创建用户
+ * 
+ * @example 请求体
+ * {
+ *   "username": "john_doe",
+ *   "email": "john@example.com",
+ *   "password": "password123"
+ * }
+ * 
+ * @example 成功响应
+ * {
+ *   "code": 201,
+ *   "message": "创建用户成功",
+ *   "data": { "id": "507f1f77bcf86cd799439011" }
+ * }
+ */
+```
+
