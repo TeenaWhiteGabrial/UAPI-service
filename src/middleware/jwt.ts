@@ -3,13 +3,22 @@ import { CODE } from "../config/code";
 import { decodeToken } from "../utils/util";
 import { getRequestType } from "../type/global";
 import { PLATFORM } from "../config/constant";
+import { UserService } from "../services/user";
 
 /** 校验Token是否合法 */
 export const jwtMiddlewareDeal = async (ctx: Context, next: Next) => {
   const token = ctx.request.headers.authorization;
   if (typeof token === "string") {
     try {
-      const userId = decodeToken(token);
+      // 移除Bearer前缀
+      const cleanToken = token.replace('Bearer ', '');
+      
+      // 检查token是否已失效
+      if (UserService.isTokenInvalid(cleanToken)) {
+        throw CODE.tokenFailed;
+      }
+
+      const userId = decodeToken(cleanToken);
 
       if (userId === null || userId === undefined) {
         throw CODE.tokenFailed;
