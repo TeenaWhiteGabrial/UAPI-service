@@ -3,8 +3,6 @@ import { CODE } from "../config/code";
 import { decodeToken } from "../utils/util";
 import { getRequestType } from "../type/global";
 import { PLATFORM } from "../config/constant";
-import user from "../controllers/user";
-// import { getUserInfoByIdService } from "../services/user";
 
 /** 校验Token是否合法 */
 export const jwtMiddlewareDeal = async (ctx: Context, next: Next) => {

@@ -1,5 +1,4 @@
 import Router from 'koa-router';
-import { UserController } from '../controllers/user';
 import { ProjectController } from '../controllers/project';
 import { ApiController } from '../controllers/api';
 import { LogViewer } from '../utils/logViewer';
@@ -7,32 +6,25 @@ import { LogViewer } from '../utils/logViewer';
 // 创建路由实例
 const router = new Router();
 
-// 用户相关路由
-router.get('/users', UserController.getUsers);
-router.get('/users/:id', UserController.getUserById);
-router.post('/users', UserController.createUser);
-router.post('/users/:id/update', UserController.updateUser);
-router.post('/users/:id/delete', UserController.deleteUser);
-
 // 项目相关路由
-router.get('/projects', ProjectController.getProjects);
-router.get('/projects/:id', ProjectController.getProjectById);
-router.post('/projects', ProjectController.createProject);
-router.post('/projects/:id/update', ProjectController.updateProject);
-router.post('/projects/:id/delete', ProjectController.deleteProject);
+router.get('/uapi-manage/projects', ProjectController.getProjects);
+router.get('/uapi-manage/projects/:id', ProjectController.getProjectById);
+router.post('/uapi-manage/projects', ProjectController.createProject);
+router.post('/uapi-manage/projects/:id/update', ProjectController.updateProject);
+router.post('/uapi-manage/projects/:id/delete', ProjectController.deleteProject);
 
 // API接口相关路由
-router.get('/apis', ApiController.getAllApis);
-router.get('/apis/:id', ApiController.getApiById);
-router.post('/apis', ApiController.createApi);
-router.post('/apis/:id/update', ApiController.updateApi);
-router.post('/apis/:id/delete', ApiController.deleteApi);
+router.get('/uapi-manage/apis', ApiController.getAllApis);
+router.get('/uapi-manage/apis/:id', ApiController.getApiById);
+router.post('/uapi-manage/apis', ApiController.createApi);
+router.post('/uapi-manage/apis/:id/update', ApiController.updateApi);
+router.post('/uapi-manage/apis/:id/delete', ApiController.deleteApi);
 
 // 项目下的接口路由
-router.get('/projects/:projectId/apis', ApiController.getApisByProjectId);
+router.get('/uapi-manage/projects/:projectId/apis', ApiController.getApisByProjectId);
 
 // 日志查看路由
-router.get('/logs/error', (ctx) => {
+router.get('/uapi-manage/logs/error', (ctx) => {
   const lines = parseInt(ctx.query.lines as string) || 50;
   const logs = LogViewer.getLatestErrorLogs(lines);
   ctx.body = {
@@ -42,7 +34,7 @@ router.get('/logs/error', (ctx) => {
   };
 });
 
-router.get('/logs/access', (ctx) => {
+router.get('/uapi-manage/logs/access', (ctx) => {
   const lines = parseInt(ctx.query.lines as string) || 50;
   const logs = LogViewer.getLatestAccessLogs(lines);
   ctx.body = {
@@ -52,7 +44,7 @@ router.get('/logs/access', (ctx) => {
   };
 });
 
-router.get('/logs/all', (ctx) => {
+router.get('/uapi-manage/logs/all', (ctx) => {
   const lines = parseInt(ctx.query.lines as string) || 50;
   const logs = LogViewer.getLatestAllLogs(lines);
   ctx.body = {
@@ -62,7 +54,7 @@ router.get('/logs/all', (ctx) => {
   };
 });
 
-router.get('/logs/search', (ctx) => {
+router.get('/uapi-manage/logs/search', (ctx) => {
   const keyword = ctx.query.keyword as string;
   const type = ctx.query.type as 'error' | 'access' | 'all' || 'all';
   
@@ -82,7 +74,7 @@ router.get('/logs/search', (ctx) => {
   };
 });
 
-router.get('/logs/info', (ctx) => {
+router.get('/uapi-manage/logs/info', (ctx) => {
   const info = LogViewer.getLogFileInfo();
   ctx.body = {
     code: 200,
@@ -92,7 +84,7 @@ router.get('/logs/info', (ctx) => {
 });
 
 // 健康检查路由
-router.get('/health', (ctx) => {
+router.get('/uapi-manage/health', (ctx) => {
   ctx.body = {
     code: 200,
     message: '服务运行正常',
@@ -101,13 +93,12 @@ router.get('/health', (ctx) => {
 });
 
 // 根路由
-router.get('/', (ctx) => {
+router.get('/uapi-manage/', (ctx) => {
   ctx.body = {
     code: 200,
     message: '欢迎使用 API 管理系统',
     version: '1.0.0',
     endpoints: {
-      users: '/users',
       projects: '/projects',
       apis: '/apis',
       logs: '/logs',
